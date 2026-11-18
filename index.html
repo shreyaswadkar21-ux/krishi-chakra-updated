@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KrishiChakra | Smart Rural Machinery Sharing & Resilient Dispatch</title>
+  <meta name="description" content="Dynamic agricultural machinery sharing platform coordinating tractors, harvesters, and sprayers with travel buffers, deadline-based priority rules, visual machine photos, and automated weather/breakdown rescheduling.">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            krishi: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+              950: '#052e16',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- TOP ANNOUNCEMENT & KISAN HELPLINE BANNER -->
+  <header class="bg-gradient-to-r from-krishi-900 via-krishi-800 to-emerald-950 text-white shadow-lg sticky top-0 z-40 border-b border-krishi-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Top helper row - AI Voice Assistant for farmers -->
+      <div class="py-2 border-b border-krishi-700/60 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center justify-center w-2.5 h-2.5 rounded-full bg-violet-400 animate-ping mr-1"></span>
+          <span class="font-medium text-emerald-200" data-i18n="top_help_text">Can't type or need fast booking?</span>
+          <span class="font-bold text-white bg-violet-700/80 px-2 py-0.5 rounded-full border border-violet-400/40" data-i18n="top_dial_text">Use AI Voice Assistant:</span>
+          <button onclick="openAIVoiceAssistantModal()" class="font-black text-amber-300 hover:text-amber-200 underline flex items-center gap-1 transition-all">
+            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8m-4-18a3 3 0 00-3 3v4a3 3 0 006 0V7a3 3 0 00-3-3z"/></svg>
+            <span data-i18n="top_phone_number">🤖 Speak to Book Instantly (AI-Powered)</span>
+          </button>
+        </div>
+
+        <!-- Language switcher & Audio Readout toggle -->
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1.5 bg-krishi-950/60 px-2.5 py-1 rounded-lg border border-krishi-600/40 text-xs">
+            <span class="text-emerald-300" data-i18n="language_label">🌐 Language:</span>
+            <select id="lang-selector" onchange="changeLanguage(this.value)" class="bg-transparent text-white font-medium focus:outline-none cursor-pointer">
+              <option value="en" class="text-slate-900" selected>English</option>
+              <option value="hi" class="text-slate-900">हिन्दी (Hindi)</option>
+              <option value="te" class="text-slate-900">తెలుగు (Telugu)</option>
+              <option value="pa" class="text-slate-900">ਪੰਜਾਬੀ (Punjabi)</option>
+              <option value="mr" class="text-slate-900">मराठी (Marathi)</option>
+            </select>
+          </div>
+
+          <!-- Master Speech Readout Button -->
+          <button id="btn-read-screen" onclick="readActiveViewAloud()" class="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-2.5 py-1 rounded-lg shadow-sm text-xs transition-all" title="Listen to current screen aloud">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+            <span data-i18n="listen_aloud">🔊 Listen Aloud</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Navbar -->
+      <div class="py-3 flex flex-wrap items-center justify-between gap-4">
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-400 to-krishi-400 flex items-center justify-center shadow-md shadow-krishi-950/40 text-slate-900 font-black text-2xl border-2 border-white/30">
+            🌾
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight font-serif text-white flex items-center gap-2">
+                KrishiChakra <span class="text-xs sm:text-sm font-sans font-semibold bg-emerald-700/80 text-emerald-200 px-2 py-0.5 rounded-full border border-emerald-500/40" data-i18n="app_tag">कृषि चक्र</span>
+              </h1>
+            </div>
+            <p class="text-xs text-emerald-200/90 font-medium" data-i18n="app_subtitle">Smart Rural Machinery Sharing & Resilient Dispatch System</p>
+          </div>
+        </div>
+
+        <!-- Persona View Switcher (Farmer, Equipment Owner) -->
+        <nav class="flex items-center bg-krishi-950/80 p-1.5 rounded-xl border border-krishi-700 shadow-inner overflow-x-auto max-w-full">
+          <button id="nav-btn-farmer" onclick="switchPersona('farmer')" class="nav-tab active flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all">
+            <span class="text-base">👨‍🌾</span>
+            <span data-i18n="nav_farmer">Farmer Portal</span>
+          </button>
+          <button id="nav-btn-owner" onclick="switchPersona('owner')" class="nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold text-emerald-200 hover:text-white transition-all">
+            <span class="text-base">🚜</span>
+            <span data-i18n="nav_owner">Equipment Owner</span>
+          </button>
+        </nav>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- SIMULATION STATUS & DISRUPTION TEST CONTROLS -->
+  <section class="bg-slate-900 text-white border-b border-slate-700 px-4 sm:px-6 lg:px-8 py-2.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
+      <div class="flex items-center gap-3">
+        <span class="flex items-center gap-1.5 font-semibold text-slate-300">
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span data-i18n="sim_date_label">Simulated Date:</span>
+        </span>
+        <span id="current-sim-date" class="font-bold text-amber-300 bg-slate-800 px-2.5 py-1 rounded-md border border-slate-700 font-mono">2026-11-18</span>
+        
+        <!-- Live Clash Auditor Status Badge -->
+        <span id="clash-badge" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/50">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <span id="clash-count-text" data-i18n="clash_safe_text">0 Clashes | Buffers Safe</span>
+        </span>
+      </div>
+
+      <!-- Quick Disruption Triggers (For testing emergency reschedule) -->
+      <div class="flex items-center flex-wrap gap-2">
+        <span class="text-slate-400 text-xs font-semibold mr-1" data-i18n="disruption_tests_label">Disruption Tests:</span>
+        <button id="btn-toggle-rain" onclick="toggleRainDisruption()" class="px-3 py-1 rounded-lg text-xs font-bold bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-600/50 flex items-center gap-1.5 transition-all">
+          <span>⛈️</span>
+          <span id="rain-btn-label" data-i18n="rain_btn_inject">Inject Heavy Rain (Nov 19)</span>
+        </button>
+        <button id="btn-toggle-breakdown" onclick="toggleBreakdownDisruption()" class="px-3 py-1 rounded-lg text-xs font-bold bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-600/50 flex items-center gap-1.5 transition-all">
+          <span>⚙️</span>
+          <span id="breakdown-btn-label" data-i18n="breakdown_btn_inject">Inject Harvester Breakdown</span>
+        </button>
+        <button onclick="resetAllDisruptions()" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 transition-all" data-i18n="btn_reset">
+          ↺ Reset Baseline
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACTIVE DISRUPTION ALERT BANNER (Dynamically shown) -->
+  <div id="disruption-alert-banner" class="hidden bg-gradient-to-r from-amber-600 via-rose-600 to-amber-700 text-white px-4 py-2.5 shadow-md">
+    <div class="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl animate-bounce">🚨</span>
+        <div>
+          <span class="font-extrabold uppercase tracking-wide text-xs bg-black/30 px-2 py-0.5 rounded mr-2" data-i18n="disruption_active_tag">Disruption Active</span>
+          <span id="disruption-banner-message" class="text-sm font-semibold">Heavy Monsoon Rain detected on Nov 19. Field soil unworkable. Rescheduling affected bookings...</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs bg-white/20 px-2.5 py-1 rounded-md font-medium" data-i18n="disruption_auto_handled">Auto-Rescheduled with Deadline Priority</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 1: FARMER PORTAL (Kisan View - Machine Photos & High Accessibility)  -->
+    <!-- ========================================================================= -->
+    <div id="view-farmer" class="view-panel space-y-6">
+      
+      <!-- Welcome Hero Banner -->
+      <div class="bg-gradient-to-br from-emerald-700 to-krishi-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+        <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+          <div class="md:col-span-2 space-y-2">
+            <div class="inline-flex items-center gap-2 bg-emerald-800/80 px-3 py-1 rounded-full text-xs font-semibold text-emerald-200 border border-emerald-500/40">
+              <span>🌾</span>
+              <span data-i18n="farmer_hero_badge">Farmer Dashboard • Simple & Transparent</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight" data-i18n="farmer_hero_title">
+              Book Tractors, Harvesters & Sprayers With Live Machine Photos
+            </h2>
+            <p class="text-emerald-100 text-sm sm:text-base leading-relaxed" data-i18n="farmer_hero_desc">
+              See real photos of available machinery before booking. Your harvest and sowing deadlines are strictly prioritized, travel buffers prevent late arrivals, and weather delays are automatically rescheduled.
+            </p>
+
+            <div class="pt-3 flex flex-wrap gap-3">
+              <button onclick="openNewBookingModal()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 text-sm sm:text-base transition-all transform hover:-translate-y-0.5">
+                <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <span data-i18n="btn_request_machine">Request a Machine Now</span>
+              </button>
+              <button onclick="openAIVoiceAssistantModal()" class="bg-gradient-to-r from-violet-700 to-indigo-700 hover:from-violet-600 hover:to-indigo-600 text-white border-2 border-violet-400/60 font-semibold px-4 py-3 rounded-xl flex items-center gap-2 text-sm transition-all shadow-lg shadow-violet-900/30">
+                <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8m-4-18a3 3 0 00-3 3v4a3 3 0 006 0V7a3 3 0 00-3-3z"/></svg>
+                <span data-i18n="btn_voice_assistant">🤖 AI Voice Assistant — Speak to Book</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- AI Voice Assistant Callout Box -->
+          <div class="bg-gradient-to-br from-violet-600/20 to-indigo-600/20 backdrop-blur-md rounded-2xl p-4 border border-violet-400/30 text-center space-y-3">
+            <div class="w-12 h-12 bg-gradient-to-br from-violet-500 to-indigo-500 text-white rounded-full flex items-center justify-center mx-auto text-2xl font-black shadow-lg shadow-violet-900/40">
+              🤖
+            </div>
+            <h3 class="font-bold text-white text-base" data-i18n="phone_box_title">AI Voice Booking Assistant</h3>
+            <p class="text-xs text-emerald-100" data-i18n="phone_box_desc">
+              Just speak in your language! Our AI assistant understands Hindi, Telugu, Punjabi & Marathi. It books the right machine for you in seconds — no typing needed!
+            </p>
+            <button onclick="openAIVoiceAssistantModal()" class="w-full bg-white text-violet-900 font-bold py-2 rounded-lg text-xs hover:bg-violet-50 transition shadow" data-i18n="phone_box_btn">
+              🎙️ Start Voice Booking Now
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: AVAILABLE MACHINERY FLEET WITH REAL PHOTOS -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <span>🚜</span>
+              <span data-i18n="title_available_fleet">Available Machinery Fleet (Photos & Specs)</span>
+            </h3>
+            <p class="text-xs text-slate-500" data-i18n="subtitle_available_fleet">Browse real machine photos, rates, work capacity, and click to request directly for your plot.</p>
+          </div>
+          <span class="text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300 px-3 py-1 rounded-full" data-i18n="badge_fleet_active">
+            5 Machines Available in Your Cluster
+          </span>
+        </div>
+
+        <div id="farmer-fleet-gallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Dynamically populated machine photo cards -->
+        </div>
+      </div>
+
+      <!-- SECTION: FARMER REGISTERED PLOTS & CRITICAL WINDOWS -->
+      <div class="space-y-4 pt-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <span>🌱</span>
+              <span data-i18n="title_my_plots">My Registered Farm Plots & Operation Windows</span>
+            </h3>
+            <p class="text-xs text-slate-500" data-i18n="subtitle_my_plots">Each plot has a critical window. Operations scheduled earlier prevent yield loss.</p>
+          </div>
+          <button onclick="openNewPlotModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3 py-1.5 rounded-lg text-xs shadow flex items-center gap-1.5 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span data-i18n="btn_register_plot">+ Register New Plot</span>
+          </button>
+        </div>
+
+        <div id="farmer-plots-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamically populated plot cards -->
+        </div>
+      </div>
+
+      <!-- SECTION: FARMER BOOKINGS STATUS TRACKERS -->
+      <div class="space-y-4 pt-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <span>📋</span>
+              <span data-i18n="title_my_bookings">My Machine Booking Requests & Live Status</span>
+            </h3>
+            <p class="text-xs text-slate-500" data-i18n="subtitle_my_bookings">Track accepted, dispatched, rescheduled, or travel buffer status with plain-language explanations.</p>
+          </div>
+          <div class="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full border" data-i18n="hint_listen_explanation">
+            Click 🔊 on any card to listen to the status explanation
+          </div>
+        </div>
+
+        <div id="farmer-bookings-list" class="space-y-3">
+          <!-- Dynamically populated booking cards -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 2: EQUIPMENT OWNER PORTAL (Fleet & Incoming Requests)                 -->
+    <!-- ========================================================================= -->
+    <div id="view-owner" class="view-panel hidden space-y-6">
+      
+      <!-- Owner Stats Header -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl font-bold">
+            🚜
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider" data-i18n="stat_active_fleet">Active Fleet</p>
+            <h4 class="text-2xl font-extrabold text-slate-900" id="owner-stat-fleet-count">5 Machines</h4>
+            <span class="text-[11px] text-emerald-600 font-medium" data-i18n="stat_geo_tracked">100% Geo-Tracked</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-2xl font-bold">
+            ⏳
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider" data-i18n="stat_confirmed_bookings">Scheduled Bookings</p>
+            <h4 class="text-2xl font-extrabold text-slate-900" id="owner-stat-pending-count">6 Active</h4>
+            <span class="text-[11px] text-amber-600 font-medium" data-i18n="stat_zero_clash">Zero Clashes</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl font-bold">
+            💰
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider" data-i18n="stat_projected_revenue">Projected Revenue</p>
+            <h4 class="text-2xl font-extrabold text-slate-900" id="owner-stat-revenue">₹46,800</h4>
+            <span class="text-[11px] text-slate-500 font-medium" data-i18n="stat_period">Next 7 Days</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-2xl font-bold">
+            🛣️
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider" data-i18n="stat_transit_opt">Transit Optimization</p>
+            <h4 class="text-2xl font-extrabold text-slate-900" data-i18n="stat_km_saved">42 km Saved</h4>
+            <span class="text-[11px] text-purple-600 font-medium" data-i18n="stat_clustered_dispatch">Clustered Rural Dispatch</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Owner Fleet Manager with Machine Photos -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-2 border-b pb-4">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <span>🚜</span>
+              <span data-i18n="title_owner_fleet">My Equipment Fleet Registry</span>
+            </h3>
+            <p class="text-xs text-slate-500" data-i18n="subtitle_owner_fleet">List machines with photos, hourly/per-acre rates, work rates, base locations, and operational health.</p>
+          </div>
+          <button onclick="openNewEquipmentModal()" class="bg-krishi-700 hover:bg-krishi-800 text-white font-semibold px-4 py-2 rounded-xl text-xs shadow flex items-center gap-1.5 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span data-i18n="btn_register_machine">+ Register New Machine</span>
+          </button>
+        </div>
+
+        <div id="owner-fleet-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Dynamically populated equipment cards with photos -->
+        </div>
+      </div>
+
+      <!-- Owner Pending Approvals (Action Required) -->
+      <div class="bg-amber-50/80 rounded-2xl border-2 border-amber-300 shadow-sm p-6 space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-2 border-b border-amber-200 pb-4">
+          <div>
+            <h3 class="text-lg font-extrabold text-amber-950 flex items-center gap-2">
+              <span class="text-xl">🔔</span>
+              <span data-i18n="title_pending_approvals">Pending Booking Requests Awaiting Your Approval</span>
+            </h3>
+            <p class="text-xs text-amber-800" data-i18n="subtitle_pending_approvals">Farmers requesting your machinery. Review earnings and travel buffer, then click Approve to allot the machine.</p>
+          </div>
+          <span id="owner-pending-badge" class="text-xs font-black bg-amber-200 text-amber-900 border border-amber-400 px-3 py-1 rounded-full">
+            1 Pending Approval
+          </span>
+        </div>
+
+        <div id="owner-pending-requests-list" class="space-y-3">
+          <!-- Dynamically populated pending requests with Approve/Reject buttons -->
+        </div>
+      </div>
+
+      <!-- Owner Active & Confirmed Dispatches -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-2 border-b pb-4">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <span>📥</span>
+              <span data-i18n="title_owner_requests">Confirmed Dispatches & Active Allotments</span>
+            </h3>
+            <p class="text-xs text-slate-500" data-i18n="subtitle_owner_requests">Approved machinery bookings with verified travel buffers and zero clashes.</p>
+          </div>
+          <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full border border-emerald-300" data-i18n="badge_buffer_active">
+            Automated Travel Buffer Protection Active
+          </span>
+        </div>
+
+        <div id="owner-requests-list" class="space-y-3">
+          <!-- Dynamically populated confirmed allotments -->
+        </div>
+      </div>
+
+    </div>
+
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODALS SECTION                                                            -->
+  <!-- ========================================================================= -->
+
+  <!-- MODAL 1: REQUEST A MACHINE (Farmer Modal with Photo Preview) -->
+  <div id="modal-new-booking" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-100 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl font-bold">
+            🚜
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900" data-i18n="modal_booking_title">Request Equipment Booking</h3>
+            <p class="text-xs text-slate-500" data-i18n="modal_booking_subtitle">Clashes prevented with automatic travel time buffers</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modal-new-booking')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+      </div>
+
+      <form onsubmit="handleFarmerBookingSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="modal_select_plot">Select Farm Plot</label>
+          <select id="booking-plot-select" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="modal_select_equip">Select Machinery & Lending Owner (Who is Lending?)</label>
+          <select id="booking-equip-select" onchange="updateBookingModalPhoto(this.value)" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+            <!-- Populated with equipment & owner details via JS -->
+          </select>
+        </div>
+
+        <!-- Dynamic Photo & Lender Preview of Selected Machine -->
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2">
+          <div class="flex items-center gap-4">
+            <img id="modal-machine-preview-img" src="" alt="Machine Preview" class="w-24 h-20 object-cover rounded-xl border border-slate-300 shadow-sm">
+            <div class="space-y-1">
+              <h5 id="modal-machine-preview-name" class="font-extrabold text-slate-900 text-sm">Machine Name</h5>
+              <p class="text-xs text-slate-600">
+                <span data-i18n="lender_title">Lending Owner:</span> <strong id="modal-machine-preview-owner" class="text-emerald-800 font-bold">Gurmeet Singh</strong>
+                (<span id="modal-machine-preview-phone" class="font-mono text-slate-500">9876543210</span>)
+              </p>
+              <p id="modal-machine-preview-specs" class="text-xs text-slate-500">Rate & Work Capacity</p>
+            </div>
+          </div>
+
+          <div class="p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-900 flex items-start gap-2">
+            <span class="text-sm">⚠️</span>
+            <p data-i18n="modal_lender_notice">Notice: Your request will be sent to this owner for approval. The machine will be officially allotted with a travel buffer once the owner approves.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="modal_start_date">Earliest Start Date</label>
+            <input type="date" id="booking-start-date" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="modal_end_date">Critical Deadline</label>
+            <input type="date" id="booking-end-date" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="modal_notes_label">Agronomic Notes / Special Instructions</label>
+          <input type="text" id="booking-notes" placeholder="e.g. Rain expected in 2 days; field slightly moist" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+
+        <div class="bg-emerald-50 p-3.5 rounded-xl border border-emerald-200 text-xs text-emerald-900 space-y-1">
+          <span class="font-bold flex items-center gap-1 text-emerald-800">
+            <span>🛡️</span> <span data-i18n="modal_guarantee_title">Zero Double-Booking Guarantee</span>
+          </span>
+          <p data-i18n="modal_guarantee_text">The scheduler automatically accounts for plot size, work duration, and road travel time from previous jobs.</p>
+        </div>
+
+        <div class="pt-2 flex gap-3">
+          <button type="button" onclick="closeModal('modal-new-booking')" class="w-1/3 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-700 hover:bg-slate-50 text-sm" data-i18n="btn_cancel">Cancel</button>
+          <button type="submit" class="w-2/3 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow" data-i18n="btn_submit_request">Submit Booking Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: REGISTER NEW PLOT (Farmer Modal) -->
+  <div id="modal-new-plot" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-100">
+      <div class="flex items-center justify-between border-b pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl font-bold">
+            🌱
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900" data-i18n="modal_plot_title">Register New Farm Plot</h3>
+            <p class="text-xs text-slate-500" data-i18n="modal_plot_subtitle">Define acreage, crop, and critical agronomic window</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modal-new-plot')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+      </div>
+
+      <form onsubmit="handleNewPlotSubmit(event)" class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="label_farmer_name">Farmer Name</label>
+            <input type="text" id="plot-farmer-name" required placeholder="e.g. Balwinder Singh" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="label_phone_number">Phone Number</label>
+            <input type="tel" id="plot-phone" required placeholder="9876543210" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="label_village_cluster">Village Location</label>
+            <select id="plot-village" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+              <option value="Rampur Kalan">Rampur Kalan</option>
+              <option value="Sitapur Khurd">Sitapur Khurd</option>
+              <option value="Kalyanpur East">Kalyanpur East</option>
+              <option value="Shivpur South">Shivpur South</option>
+              <option value="Fatehgarh Fields">Fatehgarh Fields</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="label_plot_area">Area (Acres)</label>
+            <input type="number" step="0.5" min="0.5" max="50" id="plot-acres" required placeholder="5.0" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="label_crop_type">Crop</label>
+            <select id="plot-crop" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+              <option value="Paddy" data-i18n="crop_paddy">🌾 Paddy (Rice)</option>
+              <option value="Wheat" data-i18n="crop_wheat">🌱 Wheat</option>
+              <option value="Cotton" data-i18n="crop_cotton">🌸 Cotton</option>
+              <option value="Mustard" data-i18n="crop_mustard">🌼 Mustard</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="label_operation">Operation</label>
+            <select id="plot-operation" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+              <option value="Harvesting" data-i18n="op_harvest">Harvesting</option>
+              <option value="Sowing" data-i18n="op_sow">Sowing</option>
+              <option value="Spraying" data-i18n="op_spray">Spraying</option>
+              <option value="Tilling" data-i18n="op_till">Tilling / Rotavator</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="modal_start_date">Window Start</label>
+            <input type="date" id="plot-window-start" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="modal_end_date">Deadline Date</label>
+            <input type="date" id="plot-window-end" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+          </div>
+        </div>
+
+        <div class="pt-2 flex gap-3">
+          <button type="button" onclick="closeModal('modal-new-plot')" class="w-1/3 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-700 hover:bg-slate-50 text-sm" data-i18n="btn_cancel">Cancel</button>
+          <button type="submit" class="w-2/3 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow" data-i18n="btn_save_plot">Register Farm Plot</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: REGISTER NEW EQUIPMENT (Owner Modal with Machine Photo URL) -->
+  <div id="modal-new-equip" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-slate-100 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl font-bold">
+            🚜
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900" data-i18n="modal_equip_title">Register New Equipment</h3>
+            <p class="text-xs text-slate-500" data-i18n="modal_equip_subtitle">Provide machine photo, work rate, and hourly or per-acre pricing</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modal-new-equip')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+      </div>
+
+      <form onsubmit="handleNewEquipmentSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="modal_machine_name">Machine Model & Name</label>
+          <input type="text" id="equip-name" required placeholder="e.g. Sonalika Tiger 55 HP" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="modal_machine_photo">Machine Photo URL</label>
+          <input type="url" id="equip-photo" placeholder="https://images.unsplash.com/photo-..." class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="label_category">Category</label>
+            <select id="equip-type" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+              <option value="Tractor">Tractor</option>
+              <option value="Harvester">Harvester</option>
+              <option value="Sprayer">Sprayer</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="label_work_rate">Work Rate (Acres / Hr)</label>
+            <input type="number" step="0.1" min="0.5" max="10" id="equip-work-rate" required placeholder="1.8" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="label_rate_price">Rate (₹)</label>
+            <input type="number" min="100" max="10000" id="equip-rate" required placeholder="950" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="label_rate_basis">Rate Basis</label>
+            <select id="equip-rate-unit" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+              <option value="hour" data-i18n="basis_hour">Per Hour</option>
+              <option value="acre" data-i18n="basis_acre">Per Acre</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="label_base_hub">Base Hub Location</label>
+            <select id="equip-location" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+              <option value="Rampur Central Hub">Rampur Central Hub</option>
+              <option value="Sitapur Agro Center">Sitapur Agro Center</option>
+              <option value="Kalyanpur Grain Yard">Kalyanpur Grain Yard</option>
+              <option value="Shivpur Farm Depot">Shivpur Farm Depot</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1" data-i18n="label_owner_phone">Owner Contact Phone</label>
+            <input type="tel" id="equip-phone" required placeholder="9876543210" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm">
+          </div>
+        </div>
+
+        <div class="pt-2 flex gap-3">
+          <button type="button" onclick="closeModal('modal-new-equip')" class="w-1/3 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-700 hover:bg-slate-50 text-sm" data-i18n="btn_cancel">Cancel</button>
+          <button type="submit" class="w-2/3 py-2.5 rounded-xl bg-krishi-700 hover:bg-krishi-800 text-white font-bold text-sm shadow" data-i18n="btn_add_fleet">Add Equipment to Fleet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 4: AI VOICE ASSISTANT (Speaks to Book for Farmers) -->
+  <div id="modal-ai-voice" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-gradient-to-b from-slate-950 to-violet-950 text-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-2 border-violet-700/60 space-y-4">
+      <div class="flex items-center justify-between border-b border-violet-800/60 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-violet-400 animate-ping"></span>
+          <span class="text-xs font-bold tracking-wider uppercase text-violet-300" data-i18n="call_live_status">AI Voice Assistant</span>
+        </div>
+        <button onclick="closeModal('modal-ai-voice')" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+
+      <!-- AI Assistant Interface -->
+      <div class="bg-slate-900/80 rounded-2xl p-5 border border-violet-700/40 text-center space-y-4">
+        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 text-white flex items-center justify-center mx-auto text-4xl shadow-lg ring-4 ring-violet-500/30" id="ai-voice-avatar">
+          🤖
+        </div>
+        <div>
+          <h4 class="font-extrabold text-lg text-white" data-i18n="call_helpline_title">KrishiChakra AI Voice Assistant</h4>
+          <p class="text-xs text-violet-300 font-medium" data-i18n="call_helpline_sub">Powered by Voice AI • Multilingual</p>
+          <span class="text-[11px] text-emerald-400 font-medium inline-block mt-1" id="ai-voice-status" data-i18n="call_connected_info">● Ready • Hindi, Telugu, Punjabi, Marathi & English</span>
+        </div>
+
+        <div id="ai-voice-transcript" class="bg-slate-950 p-3.5 rounded-xl text-xs text-slate-300 text-left border border-violet-800/50 min-h-28 max-h-48 overflow-y-auto space-y-2">
+          <div class="text-violet-400 font-bold">🤖 AI Assistant:</div>
+          <div class="text-slate-300 italic" id="ai-initial-greeting">"नमस्ते किसान भाई! मैं कृषि चक्र AI सहायक हूँ। बस बोलिए — कौन सी फसल है, कितने एकड़ का खेत है, और कब तक मशीन चाहिए। मैं तुरंत बुकिंग कर दूँगा!"</div>
+        </div>
+
+        <!-- Voice Input Button -->
+        <div class="flex flex-col items-center gap-2">
+          <button id="ai-mic-btn" onclick="startAIVoiceBooking()" class="w-16 h-16 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white flex items-center justify-center text-2xl shadow-xl ring-4 ring-violet-500/20 hover:ring-violet-400/40 transition-all transform hover:scale-110 active:scale-95">
+            🎙️
+          </button>
+          <span id="ai-mic-label" class="text-xs text-violet-300 font-semibold" data-i18n="btn_speak_to_book">Tap & Speak to Book a Machine</span>
+        </div>
+
+        <!-- Quick example chips for testing voice booking -->
+        <div class="text-left space-y-1.5 pt-1">
+          <div class="text-[11px] text-violet-300 font-semibold" data-i18n="voice_try_saying">💡 Or tap an example voice query:</div>
+          <div class="flex flex-wrap gap-1.5 text-[11px]">
+            <button type="button" onclick="speakAndBookPrompt('रामपुर कलां में 5 एकड़ धान कटाई के लिए कंबाइन हार्वेस्टर चाहिए 20 तारीख तक', 'hi')" class="bg-slate-800/80 hover:bg-violet-800/80 text-violet-200 px-2.5 py-1 rounded-lg border border-violet-700/40 transition">
+              🌾 रामपुर: 5 एकड़ धान कटाई
+            </button>
+            <button type="button" onclick="speakAndBookPrompt('Need tractor for 4 acres wheat sowing in Sitapur Khurd before Nov 21', 'en')" class="bg-slate-800/80 hover:bg-violet-800/80 text-violet-200 px-2.5 py-1 rounded-lg border border-violet-700/40 transition">
+              🌱 Sitapur: 4 acres Wheat Sowing
+            </button>
+            <button type="button" onclick="speakAndBookPrompt('कल्याणपुर ईस्ट में 3 एकड़ कपास छिड़काव के लिए स्प्रेयर चाहिए', 'hi')" class="bg-slate-800/80 hover:bg-violet-800/80 text-violet-200 px-2.5 py-1 rounded-lg border border-violet-700/40 transition">
+              💧 कल्याणपुर: 3 एकड़ कपास छिड़काव
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick action buttons for demo -->
+        <div class="flex flex-wrap justify-center gap-2 pt-1">
+          <button onclick="demoAIVoiceBooking('hi')" class="bg-violet-700 hover:bg-violet-600 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow" data-i18n="btn_play_hindi_ivr">
+            🎙️ Demo Hindi Voice
+          </button>
+          <button onclick="demoAIVoiceBooking('en')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow" data-i18n="btn_play_english_ivr">
+            🎙️ Demo English Voice
+          </button>
+        </div>
+
+        <!-- Optional text fallback -->
+        <form onsubmit="handleVoiceTextInput(event)" class="pt-1 flex gap-2">
+          <input type="text" id="ai-voice-text-fallback" placeholder="Or type what you would say..." class="flex-1 bg-slate-950 text-white border border-violet-800/60 rounded-xl px-3 py-1.5 text-xs focus:ring-1 focus:ring-violet-400 focus:outline-none">
+          <button type="submit" class="bg-violet-600 hover:bg-violet-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition">Book</button>
+        </form>
+      </div>
+
+      <div class="bg-violet-900/40 rounded-xl p-3 border border-violet-700/30 text-xs text-violet-200 space-y-1">
+        <span class="font-bold text-violet-300" data-i18n="ai_how_it_works_title">🧠 How it works:</span>
+        <p data-i18n="ai_how_it_works_desc">Just speak naturally — tell the AI your crop, village, acreage, and deadline. It finds the best available machine, books it instantly, and sends you an SMS confirmation. No typing, no dealer, no waiting!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: PLAIN LANGUAGE EXPLANATION MODAL -->
+  <div id="modal-explanation" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-4 border border-slate-100">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🧠</span>
+          <h3 class="text-lg font-bold text-slate-900" id="explanation-modal-title" data-i18n="modal_why_title">Why Was This Decision Made?</h3>
+        </div>
+        <button onclick="closeModal('modal-explanation')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 text-slate-800 text-sm leading-relaxed" id="explanation-modal-body">
+          <!-- Text inserted via JS -->
+        </div>
+
+        <!-- Audio listen button inside explanation -->
+        <button id="btn-modal-speech" onclick="speakCurrentExplanation()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-xl text-xs shadow flex items-center justify-center gap-2 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+          <span id="btn-modal-speech-label" data-i18n="btn_listen_explanation_audio">🔊 Listen to this Explanation Aloud (Audio)</span>
+        </button>
+      </div>
+
+      <div class="pt-2 text-right">
+        <button onclick="closeModal('modal-explanation')" class="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs" data-i18n="btn_close">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 text-slate-400 text-xs py-6 mt-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="text-base">🌾</span>
+        <span class="font-bold text-white">KrishiChakra</span> • <span data-i18n="footer_platform_desc">Smart Agricultural Dispatch & Machinery Sharing</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span data-i18n="footer_zero_clash">Zero Double-Booking Guarantee</span>
+        <span>•</span>
+        <span data-i18n="footer_rescheduler">Minimal-Disruption Rescheduler</span>
+        <span>•</span>
+        <span class="text-violet-400 font-semibold" data-i18n="footer_helpline">🤖 AI Voice Assistant Enabled</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
